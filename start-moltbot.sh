@@ -187,22 +187,31 @@ if (process.env.TELEGRAM_BOT_TOKEN) {
     config.channels.telegram = config.channels.telegram || {};
     config.channels.telegram.botToken = process.env.TELEGRAM_BOT_TOKEN;
     config.channels.telegram.enabled = true;
-    config.channels.telegram.dm = config.channels.telegram.dm || {};
-    config.channels.telegram.dmPolicy = process.env.TELEGRAM_DM_POLICY || 'pairing';
+    const telegramDmPolicy = process.env.TELEGRAM_DM_POLICY || 'pairing';
+    config.channels.telegram.dmPolicy = telegramDmPolicy;
+    if (process.env.TELEGRAM_DM_ALLOW_FROM) {
+        // Explicit allowlist: "123,456,789" → ['123', '456', '789']
+        config.channels.telegram.allowFrom = process.env.TELEGRAM_DM_ALLOW_FROM.split(',');
+    } else if (telegramDmPolicy === 'open') {
+        // "open" policy requires allowFrom: ["*"]
+        config.channels.telegram.allowFrom = ['*'];
+    }
 }
 
 // Discord configuration
+// Note: Discord uses nested dm.policy, not flat dmPolicy like Telegram
+// See: https://github.com/moltbot/moltbot/blob/v2026.1.24-1/src/config/zod-schema.providers-core.ts#L147-L155
 if (process.env.DISCORD_BOT_TOKEN) {
     config.channels.discord = config.channels.discord || {};
     config.channels.discord.token = process.env.DISCORD_BOT_TOKEN;
     config.channels.discord.enabled = true;
     // Set groupPolicy to 'disabled' to not allow any guild channels (DMs only)
     config.channels.discord.groupPolicy = 'disabled';
+    const discordDmPolicy = process.env.DISCORD_DM_POLICY || 'pairing';
     config.channels.discord.dm = config.channels.discord.dm || {};
-    const dmPolicy = process.env.DISCORD_DM_POLICY || 'pairing';
-    config.channels.discord.dm.policy = dmPolicy;
-    // If policy is 'open', allowFrom must include "*"
-    if (dmPolicy === 'open') {
+    config.channels.discord.dm.policy = discordDmPolicy;
+    // "open" policy requires allowFrom: ["*"]
+    if (discordDmPolicy === 'open') {
         config.channels.discord.dm.allowFrom = ['*'];
     }
 }
