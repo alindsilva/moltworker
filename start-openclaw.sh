@@ -233,11 +233,21 @@ if (process.env.CF_AI_GATEWAY_MODEL) {
         
         // Add cf-aig-authorization header for authenticated AI Gateway
         // This supports AI Gateway with authentication enabled (not just BYOK mode)
+        const headers = {};
         if (process.env.AI_GATEWAY_API_KEY) {
             console.log('Adding cf-aig-authorization header for authenticated AI Gateway');
-            config.models.providers[providerName].headers = {
-                'cf-aig-authorization': 'Bearer ' + process.env.AI_GATEWAY_API_KEY
-            };
+            headers['cf-aig-authorization'] = 'Bearer ' + process.env.AI_GATEWAY_API_KEY;
+        }
+        
+        // Google AI Studio requires x-goog-api-key header instead of Authorization
+        // This is needed when using Google models through AI Gateway
+        if (gwProvider === 'google-ai-studio' && process.env.GEMINI_API_KEY) {
+            console.log('Adding x-goog-api-key header for Google AI Studio');
+            headers['x-goog-api-key'] = process.env.GEMINI_API_KEY;
+        }
+        
+        if (Object.keys(headers).length > 0) {
+            config.models.providers[providerName].headers = headers;
         }
         
         config.agents = config.agents || {};
