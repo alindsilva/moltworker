@@ -230,6 +230,16 @@ if (process.env.CF_AI_GATEWAY_MODEL) {
             api: api,
             models: [{ id: modelId, name: modelId, contextWindow: 131072, maxTokens: 8192 }],
         };
+        
+        // Add cf-aig-authorization header for authenticated AI Gateway
+        // This supports AI Gateway with authentication enabled (not just BYOK mode)
+        if (process.env.AI_GATEWAY_API_KEY) {
+            console.log('Adding cf-aig-authorization header for authenticated AI Gateway');
+            config.models.providers[providerName].headers = {
+                'cf-aig-authorization': 'Bearer ' + process.env.AI_GATEWAY_API_KEY
+            };
+        }
+        
         config.agents = config.agents || {};
         config.agents.defaults = config.agents.defaults || {};
         config.agents.defaults.model = { primary: providerName + '/' + modelId };
