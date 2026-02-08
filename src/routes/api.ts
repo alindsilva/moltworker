@@ -269,6 +269,48 @@ adminApi.post('/storage/sync', async (c) => {
   }
 });
 
+// POST /api/admin/pairing/discord/approve - Approve Discord pairing with code
+adminApi.post('/pairing/discord/approve', async (c) => {
+  const sandbox = c.get('sandbox');
+  const body = await c.req.json().catch(() => ({}));
+  const code = body.code;
+
+  if (!code) {
+    return c.json({ error: 'code is required' }, 400);
+  }
+
+  try {
+    // Ensure moltbot is running first
+    await ensureMoltbotGateway(sandbox, c.env);
+
+    // Run OpenClaw CLI to approve Discord pairing
+    const token = c.env.MOLTBOT_GATEWAY_TOKEN;
+    const tokenArg = token ? ` --token ${token}` : '';
+    const proc = await sandbox.startProcess(
+      `openclaw pairing approve discord ${code} --url ws://localhost:18789${tokenArg}`,
+    );
+    await waitForProcess(proc, CLI_TIMEOUT_MS);
+
+    const logs = await proc.getLogs();
+    const stdout = logs.stdout || '';
+    const stderr = logs.stderr || '';
+
+    // Check for success indicators
+    const success = stdout.toLowerCase().includes('approved') || proc.exitCode === 0;
+
+    return c.json({
+      success,
+      code,
+      message: success ? 'Discord pairing approved' : 'Approval may have failed',
+      stdout,
+      stderr,
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return c.json({ error: errorMessage }, 500);
+  }
+});
+
 // POST /api/admin/gateway/restart - Kill the current gateway and start a new one
 adminApi.post('/gateway/restart', async (c) => {
   const sandbox = c.get('sandbox');
