@@ -208,7 +208,19 @@ if (process.env.CF_AI_GATEWAY_MODEL) {
 
     const accountId = process.env.CF_AI_GATEWAY_ACCOUNT_ID;
     const gatewayId = process.env.CF_AI_GATEWAY_GATEWAY_ID;
-    const apiKey = process.env.CLOUDFLARE_AI_GATEWAY_API_KEY;
+    
+    // Select the provider API key based on the provider type
+    let apiKey;
+    if (gwProvider === 'google-ai-studio') {
+        apiKey = process.env.GEMINI_API_KEY;
+    } else if (gwProvider === 'anthropic') {
+        apiKey = process.env.ANTHROPIC_API_KEY;
+    } else if (gwProvider === 'openai') {
+        apiKey = process.env.OPENAI_API_KEY;
+    } else {
+        // Workers AI and other providers use the Cloudflare AI Gateway key
+        apiKey = process.env.CLOUDFLARE_AI_GATEWAY_API_KEY;
+    }
 
     let baseUrl;
     if (accountId && gatewayId) {
@@ -239,8 +251,7 @@ if (process.env.CF_AI_GATEWAY_MODEL) {
             headers['cf-aig-authorization'] = 'Bearer ' + process.env.AI_GATEWAY_API_KEY;
         }
         
-        // Google AI Studio requires x-goog-api-key header instead of Authorization
-        // This is needed when using Google models through AI Gateway
+        // Google AI Studio requires x-goog-api-key header in addition to Authorization
         if (gwProvider === 'google-ai-studio' && process.env.GEMINI_API_KEY) {
             console.log('Adding x-goog-api-key header for Google AI Studio');
             headers['x-goog-api-key'] = process.env.GEMINI_API_KEY;
