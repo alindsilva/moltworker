@@ -40,7 +40,7 @@ adminApi.get('/devices', async (c) => {
     const token = c.env.MOLTBOT_GATEWAY_TOKEN;
     const tokenArg = token ? ` --token ${token}` : '';
     const proc = await sandbox.startProcess(
-      `openclaw devices list --json${tokenArg}`,
+      `openclaw devices list --json --url ws://localhost:18789${tokenArg}`,
     );
     await waitForProcess(proc, CLI_TIMEOUT_MS);
 
@@ -96,7 +96,7 @@ adminApi.post('/devices/:requestId/approve', async (c) => {
     const token = c.env.MOLTBOT_GATEWAY_TOKEN;
     const tokenArg = token ? ` --token ${token}` : '';
     const proc = await sandbox.startProcess(
-      `openclaw devices approve ${requestId}${tokenArg}`,
+      `openclaw devices approve ${requestId} --url ws://localhost:18789${tokenArg}`,
     );
     await waitForProcess(proc, CLI_TIMEOUT_MS);
 
@@ -171,7 +171,7 @@ adminApi.post('/devices/approve-all', async (c) => {
     const token = c.env.MOLTBOT_GATEWAY_TOKEN;
     const tokenArg = token ? ` --token ${token}` : '';
     const listProc = await sandbox.startProcess(
-      `openclaw devices list --json${tokenArg}`,
+      `openclaw devices list --json --url ws://localhost:18789${tokenArg}`,
     );
     await waitForProcess(listProc, CLI_TIMEOUT_MS);
 
@@ -201,7 +201,7 @@ adminApi.post('/devices/approve-all', async (c) => {
       try {
         // eslint-disable-next-line no-await-in-loop -- sequential device approval required
         const approveProc = await sandbox.startProcess(
-          `openclaw devices approve ${device.requestId}${tokenArg}`,
+          `openclaw devices approve ${device.requestId} --url ws://localhost:18789${tokenArg}`,
         );
         // eslint-disable-next-line no-await-in-loop
         await waitForProcess(approveProc, CLI_TIMEOUT_MS);
@@ -314,7 +314,7 @@ adminApi.post('/pairing/discord/approve', async (c) => {
     const token = c.env.MOLTBOT_GATEWAY_TOKEN;
     const tokenArg = token ? ` --token ${token}` : '';
     const proc = await sandbox.startProcess(
-      `openclaw pairing approve discord ${code}${tokenArg}`,
+      `openclaw pairing approve discord ${code} --url ws://localhost:18789${tokenArg}`,
     );
     await waitForProcess(proc, CLI_TIMEOUT_MS);
 
