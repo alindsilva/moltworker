@@ -62,7 +62,12 @@
       "bucket_name": "moltbot-data",
     },
   ],
-
+  // Cron trigger to sync moltbot data to R2 every 5 minutes
+  "triggers": {
+    "crons": [
+      "*/5 * * * *"
+    ],
+  },
   // Browser Rendering binding for CDP shim
   "browser": {
     "binding": "BROWSER",
@@ -73,6 +78,7 @@
   // AI Provider (at least one set required):
   // - ANTHROPIC_API_KEY: Direct Anthropic API key
   // - OPENAI_API_KEY: Direct OpenAI API key
+  // - GEMINI_API_KEY: Direct Google Gemini API key
   // - Cloudflare AI Gateway (alternative to direct keys):
   //   - CLOUDFLARE_AI_GATEWAY_API_KEY: API key for requests through the gateway
   //   - CF_AI_GATEWAY_ACCOUNT_ID: Your Cloudflare account ID

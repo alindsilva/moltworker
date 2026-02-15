@@ -353,7 +353,7 @@ You can route API requests through [Cloudflare AI Gateway](https://developers.cl
 
 AI Gateway acts as a proxy between OpenClaw and your AI provider (e.g., Anthropic). Requests are sent to `https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/anthropic` instead of directly to `api.anthropic.com`, giving you Cloudflare's analytics, caching, and rate limiting. You still need a provider API key (e.g., your Anthropic API key) — the gateway forwards it to the upstream provider.
 
-### Setup
+### Multi-Provider Setup
 
 1. Create an AI Gateway in the [AI Gateway section](https://dash.cloudflare.com/?to=/:account/ai/ai-gateway/create-gateway) of the Cloudflare Dashboard.
 2. Set the three required secrets:
